@@ -22,3 +22,12 @@ export function updatePerson(id, name) {
 
 	return localStorage.setItem('persons', JSON.stringify(persons))
 }
+
+export function deletePerson(id) {
+	const persons = getPersons()
+
+	return localStorage.setItem(
+		'persons',
+		JSON.stringify(persons.filter((person) => person.id !== id))
+	)
+}

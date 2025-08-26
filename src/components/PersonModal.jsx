@@ -1,11 +1,17 @@
 import { useState } from 'react'
-import { getPersons, updatePerson } from '../data.js'
+import { getPersons, updatePerson, deletePerson } from '../data.js'
 
 export default function PersonModal() {
 	const [persons, setPersons] = useState(getPersons())
 
 	function handleAddClick() {
 		setPersons([...persons, { id: crypto.randomUUID(), name: '' }])
+	}
+	function handleDeleteClick(id, name) {
+		if (confirm(`Remove ${name} from the list?`)) {
+			deletePerson(id)
+			setPersons(getPersons())
+		}
 	}
 
 	return (
@@ -22,7 +28,14 @@ export default function PersonModal() {
 
 					<div className='modal-names-input mt-2'>
 						{persons.map(({ id, name }) => {
-							return <NameInput id={id} name={name} key={id} />
+							return (
+								<NameInput
+									id={id}
+									name={name}
+									key={id}
+									onDelete={() => handleDeleteClick(id, name)}
+								/>
+							)
 						})}
 					</div>
 					<div className='flex justify-between mt-3'>
@@ -43,11 +56,11 @@ export default function PersonModal() {
 	)
 }
 
-function NameInput({ id, name }) {
+function NameInput({ id, name, onDelete }) {
 	const [isDisabled, setIsDisabled] = useState(name === '' ? false : true)
 	const [nameInput, setNameInput] = useState(name)
 
-	function handleClick() {
+	function handleEditClick() {
 		if (isDisabled) {
 			setIsDisabled(false)
 			return
@@ -69,7 +82,10 @@ function NameInput({ id, name }) {
 				value={nameInput}
 				onChange={(e) => setNameInput(e.target.value)}
 			/>
-			<button className='btn btn-soft btn-info join-item' onClick={handleClick}>
+			<button
+				className='btn btn-soft btn-info join-item'
+				onClick={handleEditClick}
+			>
 				{isDisabled ? (
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
@@ -98,7 +114,7 @@ function NameInput({ id, name }) {
 					</svg>
 				)}
 			</button>
-			<button className='btn btn-soft btn-warning join-item'>
+			<button className='btn btn-soft btn-warning join-item' onClick={onDelete}>
 				<svg
 					xmlns='http://www.w3.org/2000/svg'
 					width='16'
