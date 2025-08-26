@@ -31,3 +31,7 @@ export function deletePerson(id) {
 		JSON.stringify(persons.filter((person) => person.id !== id))
 	)
 }
+
+export function resetData() {
+	return localStorage.setItem('persons', JSON.stringify([]))
+}

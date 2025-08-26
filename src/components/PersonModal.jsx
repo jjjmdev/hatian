@@ -4,9 +4,15 @@ import { getPersons, updatePerson, deletePerson } from '../data.js'
 export default function PersonModal() {
 	const [persons, setPersons] = useState(getPersons())
 
+	function onOpen() {
+		document.getElementById('add_person').showModal()
+		setPersons(getPersons())
+	}
+
 	function handleAddClick() {
 		setPersons([...persons, { id: crypto.randomUUID(), name: '' }])
 	}
+
 	function handleDeleteClick(id, name) {
 		if (confirm(`Remove ${name} from the list?`)) {
 			deletePerson(id)
@@ -16,10 +22,7 @@ export default function PersonModal() {
 
 	return (
 		<>
-			<button
-				className='btn btn-soft btn-success btn-md'
-				onClick={() => document.getElementById('add_person').showModal()}
-			>
+			<button className='btn btn-soft btn-success btn-md mr-2' onClick={onOpen}>
 				+ Person
 			</button>
 			<dialog id='add_person' className='modal'>

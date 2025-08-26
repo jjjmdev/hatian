@@ -13,6 +13,8 @@ export default function ItemModal() {
 	let limitAdd = payerCount === persons.length
 
 	function onOpen() {
+		document.getElementById('add_item').showModal()
+
 		const newPersons = getPersons()
 		if (persons !== newPersons) {
 			persons = newPersons
@@ -93,13 +95,7 @@ export default function ItemModal() {
 
 	return (
 		<>
-			<button
-				className='btn btn-soft btn-info btn-md mr-2'
-				onClick={() => {
-					document.getElementById('add_item').showModal()
-					onOpen()
-				}}
-			>
+			<button className='btn btn-soft btn-info btn-md mr-2' onClick={onOpen}>
 				+ Item
 			</button>
 			<dialog id='add_item' className='modal'>
