@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { getPersons } from '../data.js'
 
 export default function ItemModal() {
-	const persons = getPersons()
+	let persons = getPersons()
 
 	const [payerCount, setPayerCount] = useState(persons.length && 1)
 	const [payerArray, setPayerArray] = useState(
@@ -11,6 +11,20 @@ export default function ItemModal() {
 		})
 	)
 	const limitAdd = payerCount === persons.length
+
+	function onOpen() {
+		const newPersons = getPersons()
+		if (persons !== newPersons) {
+			setPayerArray(
+				[...Array(persons.length)].map((_, key) => {
+					return <PayerDefaultElement id={key} key={key} />
+				})
+			)
+			persons = newPersons
+		}
+
+		setPayerCount(persons.length && 1)
+	}
 
 	const handleAddClick = (e) => {
 		e.preventDefault()
@@ -34,7 +48,7 @@ export default function ItemModal() {
 									width='16'
 									height='16'
 									fill='currentColor'
-									class='bi bi-trash'
+									className='bi bi-trash'
 									viewBox='0 0 16 16'
 								>
 									<path d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z' />
@@ -63,7 +77,6 @@ export default function ItemModal() {
 	}
 
 	const renderPayerArray = () => {
-		console.log(payerArray, payerCount, limitAdd)
 		return payerArray.slice(0, payerCount)
 	}
 
@@ -81,7 +94,10 @@ export default function ItemModal() {
 		<>
 			<button
 				className='btn btn-soft btn-info btn-md mr-2'
-				onClick={() => document.getElementById('add_item').showModal()}
+				onClick={() => {
+					document.getElementById('add_item').showModal()
+					onOpen()
+				}}
 			>
 				+ Item
 			</button>
