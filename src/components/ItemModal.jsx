@@ -10,17 +10,17 @@ export default function ItemModal() {
 			return <PayerDefaultElement id={key} key={key} />
 		})
 	)
-	const limitAdd = payerCount === persons.length
+	let limitAdd = payerCount === persons.length
 
 	function onOpen() {
 		const newPersons = getPersons()
 		if (persons !== newPersons) {
+			persons = newPersons
 			setPayerArray(
 				[...Array(persons.length)].map((_, key) => {
 					return <PayerDefaultElement id={key} key={key} />
 				})
 			)
-			persons = newPersons
 		}
 
 		setPayerCount(persons.length && 1)
@@ -77,6 +77,7 @@ export default function ItemModal() {
 	}
 
 	const renderPayerArray = () => {
+		console.log(payerCount, payerArray, limitAdd)
 		return payerArray.slice(0, payerCount)
 	}
 
