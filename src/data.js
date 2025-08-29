@@ -25,6 +25,11 @@ export function updatePerson(id, name) {
 	return true
 }
 
+export function getPersonName(id) {
+	const persons = getPersons()
+	return persons.find((person) => person.id === id)?.name
+}
+
 export function deletePerson(id) {
 	const persons = getPersons()
 
@@ -48,6 +53,11 @@ export function getItems() {
 		return []
 	}
 	return JSON.parse(localStorage.getItem('items'))
+}
+
+export function getItem(id) {
+	const items = getItems()
+	return items.find((item) => item.id === id)
 }
 
 export function addItem(newItem) {

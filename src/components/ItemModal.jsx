@@ -300,16 +300,16 @@ const BuyersList = ({ persons, buyers, onBuyersChange }) => {
 	return (
 		<fieldset className='fieldset'>
 			<legend className='fieldset-legend pb-1'>Mga Maghahati:</legend>
-			<div className='grid grid-cols-2 w-full gap-0.5'>
+			<div className='grid grid-cols-2 w-full gap-0.5 text-center'>
 				{persons.map(({ id, name }) => (
 					<label key={id}>
+						{name}
 						<input
 							type='checkbox'
 							checked={buyers.includes(id)}
-							className='checkbox checkbox-xs mr-1'
+							className='checkbox checkbox-xs ml-1'
 							onChange={(e) => onBuyersChange(e, id)}
 						/>
-						{name}
 					</label>
 				))}
 			</div>

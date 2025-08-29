@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { getPersons, getItems } from '../data'
+import { getPersonName, getPersons, getItems } from '../data'
 
 export default function ItemsTable() {
 	const [items, setItems] = useState(getItems())
 	const [persons, setPersons] = useState(getPersons())
-
-	console.log(items, persons)
+	const txs = computeTxs(items, persons)
 
 	window.addEventListener('storage', () => {
 		const newItems = getItems()
@@ -22,48 +21,106 @@ export default function ItemsTable() {
 	return (
 		<>
 			<div className='overflow-x-auto'>
-				<table className='table table-zebra'>
+				<table className='table table-zebra text-center table-xs text-nowrap'>
 					{/* head */}
 					<thead>
 						<tr>
-							<th></th>
-							<th>Name</th>
-							<th>Job</th>
-							<th>Favorite Color</th>
+							<th>Presyo</th>
+							<th>Item Name</th>
+							<th>SC?</th>
+							<th>Paid By?</th>
+							<th>Hatian</th>
+							{persons.map((person) => (
+								<th>{person.name}</th>
+							))}
 						</tr>
 					</thead>
 					<tbody>
-						{/* row 1 */}
-						<tr>
-							<th>1</th>
-							<td>Cy Ganderton</td>
-							<td>Quality Control Specialist</td>
-							<td>Blue</td>
-						</tr>
-						{/* row 2 */}
-						<tr>
-							<th>2</th>
-							<td>Hart Hagerty</td>
-							<td>Desktop Support Technician</td>
-							<td>Purple</td>
-						</tr>
-						{/* row 3 */}
-						<tr>
-							<th>3</th>
-							<td>Brice Swyre</td>
-							<td>Tax Accountant</td>
-							<td>Red</td>
-						</tr>
-
-						<tr>
-							<th>3</th>
-							<td>Brice Swyre</td>
-							<td>Tax Accountant</td>
-							<td>Red</td>
-						</tr>
+						{items.map((item) => {
+							return (
+								<tr key={item.txId}>
+									<td>₱{item.total}</td>
+									<td>{item.itemName}</td>
+									<td>{item.serviceCharge ? item.serviceCharge + '%' : '—'}</td>
+									<td>
+										{item.payers.map(({ id, personId, amount }) => (
+											<div key={id} className='w-full'>
+												{getPersonName(personId)}
+												{amount < item.total && ' – ₱' + amount}
+											</div>
+										))}
+									</td>
+									<td>₱{roundTwoDecimals(item.total / item.buyers.length)}</td>
+									{persons.map((person, index) => {
+										const amount =
+											roundTwoDecimals(txs[person.id][item.txId]) || 0
+										return <ColoredTableData index={index} amount={amount} />
+									})}
+								</tr>
+							)
+						})}
 					</tbody>
+
+					<tfoot>
+						<tr>
+							<td className='text-info'>
+								₱{items.reduce((total, item) => total + item.total, 0)}
+							</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td className='text-right'>Total:</td>
+							{persons.map((person, index) => {
+								const total = computeTotalOfPerson(txs, person.id)
+								return <ColoredTableData index={index} amount={total} />
+							})}
+						</tr>
+					</tfoot>
 				</table>
 			</div>
 		</>
+	)
+}
+
+const computeTxs = (items, persons) => {
+	let txs = {}
+	persons.forEach((person) => {
+		txs[person.id] = {}
+	})
+
+	persons.forEach((person) => {
+		items.forEach((item) => {
+			const paidByThisPerson =
+				item.payers.find((payer) => payer.personId === person.id)?.amount || 0
+			let amountShare = 0
+			if (item.buyers.includes(person.id)) {
+				amountShare = item.total / item.buyers.length
+			}
+
+			txs[person.id][item.txId] = paidByThisPerson - amountShare
+		})
+	})
+
+	return txs
+}
+
+const computeTotalOfPerson = (txs, id) => {
+	let total = 0
+	Object.values(txs[id]).forEach((amount) => {
+		total += amount
+	})
+
+	return roundTwoDecimals(total)
+}
+
+const roundTwoDecimals = (number) => {
+	return Math.round(number * 100) / 100
+}
+
+const ColoredTableData = ({ amount, index }) => {
+	return (
+		<td key={index} className={amount > 0 ? 'text-success' : 'text-warning'}>
+			{amount === 0 ? '—' : amount > 0 ? '₱' + amount : '-₱' + Math.abs(amount)}
+		</td>
 	)
 }
