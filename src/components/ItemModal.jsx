@@ -4,9 +4,6 @@ import { getPersons } from '../data.js'
 export default function ItemModal() {
 	let persons = getPersons()
 
-	const [itemName, setItemName] = useState('')
-	const [serviceCharge, setServiceCharge] = useState('0')
-
 	const [payerArray, setPayerArray] = useState(
 		persons.length && [
 			{
@@ -16,21 +13,24 @@ export default function ItemModal() {
 			},
 		]
 	)
+	const [itemName, setItemName] = useState('')
+	const [serviceCharge, setServiceCharge] = useState('0')
+	const [buyers, setBuyers] = useState(
+		persons.length && persons.map(({ id }) => id)
+	) // [id1, id2, id3]
+
 	let limitAdd = payerArray.length >= persons.length
+	let totalAmount =
+		payerArray.length &&
+		payerArray.reduce((total, payer) => {
+			return total + Number(payer.amount)
+		}, 0)
 
 	function onOpen() {
 		const newPersons = getPersons()
 		if (persons !== newPersons) {
 			persons = newPersons
-			setPayerArray(
-				persons.length && [
-					{
-						id: crypto.randomUUID(),
-						personId: persons[0].id,
-						amount: '0',
-					},
-				]
-			)
+			resetForm()
 		}
 	}
 
@@ -58,18 +58,32 @@ export default function ItemModal() {
 	}
 
 	const renderPayerArray = () => {
-		return payerArray.map(({ id, personId, amount }, index) => (
-			<PayerRow
-				id={id}
-				key={id}
-				persons={persons}
-				renderDelete={index > 0}
-				personId={personId}
-				amount={amount}
-				onDeleteClick={handleDeleteClick}
-				onChangeValue={handleChange}
-			/>
-		))
+		return (
+			payerArray.length &&
+			payerArray.map(({ id, personId, amount }, index) => (
+				<PayerRow
+					id={id}
+					key={id}
+					persons={persons}
+					renderDelete={index > 0}
+					personId={personId}
+					amount={amount}
+					onDeleteClick={handleDeleteClick}
+					onChangeValue={handleChange}
+				/>
+			))
+		)
+	}
+
+	const handleBuyersChange = (e, id) => {
+		const checked = e.target.checked
+
+		if (checked) {
+			setBuyers([...buyers, id])
+		} else {
+			const index = buyers.indexOf(id)
+			setBuyers([...buyers.slice(0, index), ...buyers.slice(index + 1)])
+		}
 	}
 
 	const handleSubmit = (e) => {
@@ -77,10 +91,32 @@ export default function ItemModal() {
 		// Close the modal
 		document.querySelector('#add_item').checked = false
 		console.log({
+			txId: crypto.randomUUID(),
 			itemName,
-			serviceCharge,
-			payer: payerArray,
+			serviceCharge: Number(serviceCharge),
+			payer: payerArray.map((payer) => ({
+				...payer,
+				amount: Number(payer.amount),
+			})),
+			buyers,
+			total: totalAmount,
 		})
+		resetForm()
+	}
+
+	const resetForm = () => {
+		setItemName('')
+		setServiceCharge('0')
+		setPayerArray(
+			persons.length && [
+				{
+					id: crypto.randomUUID(),
+					personId: persons[0].id,
+					amount: '0',
+				},
+			]
+		)
+		setBuyers(persons.length && persons.map(({ id }) => id))
 	}
 
 	return (
@@ -96,75 +132,96 @@ export default function ItemModal() {
 			<input type='checkbox' id='add_item' className='modal-toggle' />
 			<div className='modal' role='dialog'>
 				<div className='modal-box m-2'>
-					<form onSubmit={handleSubmit}>
-						<div className='flex gap-2 ' style={{ width: '100%' }}>
-							<fieldset className='fieldset flex-1'>
-								<legend className='fieldset-legend'>Ano binili?</legend>
-								<input
-									type='text'
-									className='input'
-									placeholder='Yum Burger'
-									required
-									value={itemName}
-									onChange={(e) => setItemName(e.target.value)}
-								/>
-							</fieldset>
-
-							<fieldset className='fieldset flex-1'>
-								<legend className='fieldset-legend'>May service charge?</legend>
-								<label className='input validator'>
-									<span className='label'>%</span>
+					{persons.length ? (
+						<form onSubmit={handleSubmit}>
+							<div className='flex gap-2 ' style={{ width: '100%' }}>
+								<fieldset className='fieldset flex-1'>
+									<legend className='fieldset-legend'>Ano binili?</legend>
 									<input
-										type='number'
-										placeholder='0'
-										value={serviceCharge === '0' ? '' : serviceCharge}
-										onChange={(e) => setServiceCharge(e.target.value)}
+										type='text'
+										className='input'
+										placeholder='Yum Burger'
+										required
+										value={itemName}
+										onChange={(e) => setItemName(e.target.value)}
 									/>
-								</label>
-							</fieldset>
-						</div>
+								</fieldset>
 
-						{renderPayerArray()}
-						<div className='w-full flex justify-end mt-1'>
-							<span className='badge badge-sm badge-soft badge-info'>
-								<strong>
-									Total:{' ₱'}
-									{payerArray.reduce((total, payer) => {
-										return total + Number(payer.amount)
-									}, 0)}
-								</strong>
-							</span>
-						</div>
-						<div className='modal-action'>
-							<div className={'flex mt-3 w-full ' + 'justify-between'}>
-								<div className='self-start'>
-									<button
-										className='btn btn-xs'
-										onClick={handleAddClick}
-										disabled={limitAdd}
-									>
-										+ may iba pang nagbayad
-									</button>
-								</div>
-
-								<div className='justify-self-end self-end'>
-									<label
-										htmlFor='add_item'
-										className='btn btn-soft btn-sm btn-error mr-2'
-									>
-										Cancel
+								<fieldset className='fieldset flex-1'>
+									<legend className='fieldset-legend'>
+										May service charge?
+									</legend>
+									<label className='input validator'>
+										<span className='label'>%</span>
+										<input
+											type='number'
+											placeholder='0'
+											value={serviceCharge === '0' ? '' : serviceCharge}
+											onChange={(e) => setServiceCharge(e.target.value)}
+										/>
 									</label>
-									<button
-										className='btn btn-soft btn-sm btn-success'
-										type='submit'
-										// onClick={(e) => e.preventDefault()}
-									>
-										Submit
-									</button>
+								</fieldset>
+							</div>
+
+							{renderPayerArray()}
+							<div className='w-full flex justify-between mt-1'>
+								<button
+									className='btn btn-xs'
+									onClick={handleAddClick}
+									disabled={limitAdd}
+								>
+									+ may iba pang nagbayad
+								</button>
+
+								<span className='badge badge-sm badge-soft badge-info'>
+									<strong>
+										Total:{' ₱' + (totalAmount ? totalAmount : '')}
+									</strong>
+								</span>
+							</div>
+
+							<div className='modal-action'>
+								<div className='flex w-full'>
+									<div className='flex-1'>
+										<BuyersList
+											persons={persons}
+											buyers={buyers}
+											onBuyersChange={handleBuyersChange}
+										/>
+									</div>
+
+									<div className='mt-3 flex-1 text-right'>
+										<label
+											htmlFor='add_item'
+											className='btn btn-soft btn-sm btn-error mr-2'
+										>
+											Cancel
+										</label>
+										<button
+											className='btn btn-soft btn-sm btn-success'
+											type='submit'
+											// onClick={(e) => e.preventDefault()}
+										>
+											Submit
+										</button>
+									</div>
 								</div>
 							</div>
-						</div>
-					</form>
+						</form>
+					) : (
+						<>
+							<h3 className='text-lg font-bold'>Wait lang!</h3>
+							<p className='py-2'>Lagay ka muna ng Person.</p>
+							<div className='modal-action'>
+								<label
+									htmlFor='add_item'
+									className='btn btn-soft btn-sm btn-info'
+								>
+									Ok
+								</label>
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 		</>
@@ -229,7 +286,7 @@ const PayerRow = ({
 					<input
 						type='number'
 						className='validator'
-						placeholder='49'
+						placeholder='0'
 						required
 						name='amount'
 						value={amount === '0' ? '' : amount}
@@ -238,5 +295,26 @@ const PayerRow = ({
 				</label>
 			</fieldset>
 		</div>
+	)
+}
+
+const BuyersList = ({ persons, buyers, onBuyersChange }) => {
+	return (
+		<fieldset className='fieldset'>
+			<legend className='fieldset-legend pb-1'>Mga Maghahati:</legend>
+			<div className='grid grid-cols-2 w-full gap-0.5'>
+				{persons.map(({ id, name }) => (
+					<label key={id}>
+						<input
+							type='checkbox'
+							checked={buyers.includes(id)}
+							className='checkbox checkbox-xs mr-1'
+							onChange={(e) => onBuyersChange(e, id)}
+						/>
+						{name}
+					</label>
+				))}
+			</div>
+		</fieldset>
 	)
 }
