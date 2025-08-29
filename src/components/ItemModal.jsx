@@ -61,7 +61,7 @@ export default function ItemModal() {
 	const renderPayerArray = () => {
 		console.log(payerArray)
 		return payerArray.map(({ id, personId, amount }, index) => (
-			<PayerDefaultElement
+			<PayerRow
 				id={id}
 				key={id}
 				persons={persons}
@@ -133,7 +133,7 @@ export default function ItemModal() {
 	)
 }
 
-const PayerDefaultElement = ({
+const PayerRow = ({
 	id,
 	persons,
 	onChangeValue,
