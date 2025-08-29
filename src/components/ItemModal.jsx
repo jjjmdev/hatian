@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import { getPersons } from '../data.js'
+import { getPersons, addItem } from '../data.js'
 
 export default function ItemModal() {
 	let persons = getPersons()
 
-	const [payerArray, setPayerArray] = useState(
+	const [payers, setPayers] = useState(
 		persons.length && [
 			{
 				id: crypto.randomUUID(),
@@ -19,10 +19,10 @@ export default function ItemModal() {
 		persons.length && persons.map(({ id }) => id)
 	) // [id1, id2, id3]
 
-	let limitAdd = payerArray.length >= persons.length
+	let limitAdd = payers.length >= persons.length
 	let totalAmount =
-		payerArray.length &&
-		payerArray.reduce((total, payer) => {
+		payers.length &&
+		payers.reduce((total, payer) => {
 			return total + Number(payer.amount)
 		}, 0)
 
@@ -36,31 +36,31 @@ export default function ItemModal() {
 
 	const handleAddClick = (e) => {
 		e.preventDefault()
-		setPayerArray([
-			...payerArray,
+		setPayers([
+			...payers,
 			{ id: crypto.randomUUID(), personId: persons[0].id, amount: '0' },
 		])
 	}
 
 	const handleDeleteClick = (id) => {
-		setPayerArray(payerArray.filter((payer) => id !== payer.id))
+		setPayers(payers.filter((payer) => id !== payer.id))
 	}
 
 	const handleChange = (e, id) => {
 		const { name, value } = e.target
-		const index = payerArray.findIndex((payer) => payer.id === id)
+		const index = payers.findIndex((payer) => payer.id === id)
 
-		setPayerArray((payerArray) => {
-			const newArray = [...payerArray]
+		setPayers((payers) => {
+			const newArray = [...payers]
 			newArray[index][name] = value
 			return newArray
 		})
 	}
 
-	const renderPayerArray = () => {
+	const renderpayers = () => {
 		return (
-			payerArray.length &&
-			payerArray.map(({ id, personId, amount }, index) => (
+			payers.length &&
+			payers.map(({ id, personId, amount }, index) => (
 				<PayerRow
 					id={id}
 					key={id}
@@ -90,11 +90,11 @@ export default function ItemModal() {
 		e.preventDefault()
 		// Close the modal
 		document.querySelector('#add_item').checked = false
-		console.log({
+		addItem({
 			txId: crypto.randomUUID(),
 			itemName,
 			serviceCharge: Number(serviceCharge),
-			payer: payerArray.map((payer) => ({
+			payers: payers.map((payer) => ({
 				...payer,
 				amount: Number(payer.amount),
 			})),
@@ -107,7 +107,7 @@ export default function ItemModal() {
 	const resetForm = () => {
 		setItemName('')
 		setServiceCharge('0')
-		setPayerArray(
+		setPayers(
 			persons.length && [
 				{
 					id: crypto.randomUUID(),
@@ -163,7 +163,7 @@ export default function ItemModal() {
 								</fieldset>
 							</div>
 
-							{renderPayerArray()}
+							{renderpayers()}
 							<div className='w-full flex justify-between mt-1'>
 								<button
 									className='btn btn-xs'

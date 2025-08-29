@@ -33,5 +33,19 @@ export function deletePerson(id) {
 }
 
 export function resetData() {
-	return localStorage.setItem('persons', JSON.stringify([]))
+	localStorage.setItem('persons', JSON.stringify([]))
+	localStorage.setItem('items', JSON.stringify([]))
+	return true
+}
+
+export function getItems() {
+	if (!localStorage.getItem('items')) {
+		return []
+	}
+	return JSON.parse(localStorage.getItem('items'))
+}
+
+export function addItem(newItem) {
+	const items = getItems()
+	return localStorage.setItem('items', JSON.stringify([...items, newItem]))
 }
