@@ -125,21 +125,27 @@ export default function ItemModal() {
 						</div>
 
 						{renderPayerArray()}
-
+						<div className='w-full flex justify-end mt-1'>
+							<span className='badge badge-sm badge-soft badge-info'>
+								<strong>
+									Total:{' ₱'}
+									{payerArray.reduce((total, payer) => {
+										return total + Number(payer.amount)
+									}, 0)}
+								</strong>
+							</span>
+						</div>
 						<div className='modal-action'>
-							<div
-								className={
-									'flex mt-3 w-full ' +
-									(limitAdd ? 'justify-end' : 'justify-between')
-								}
-							>
-								<button
-									className='btn btn-xs self-start'
-									onClick={handleAddClick}
-									style={{ display: limitAdd ? 'none' : 'block' }}
-								>
-									+ may iba pang nagbayad
-								</button>
+							<div className={'flex mt-3 w-full ' + 'justify-between'}>
+								<div className='self-start'>
+									<button
+										className='btn btn-xs'
+										onClick={handleAddClick}
+										disabled={limitAdd}
+									>
+										+ may iba pang nagbayad
+									</button>
+								</div>
 
 								<div className='justify-self-end self-end'>
 									<label
