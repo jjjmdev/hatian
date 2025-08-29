@@ -4,13 +4,16 @@ import { getPersons } from '../data.js'
 export default function ItemModal() {
 	let persons = getPersons()
 
-	const [payerCount, setPayerCount] = useState(persons.length && 1)
 	const [payerArray, setPayerArray] = useState(
-		[...Array(persons.length)].map((_, key) => {
-			return <PayerDefaultElement id={key} key={key} />
-		})
+		persons.length && [
+			{
+				id: crypto.randomUUID(),
+				personId: persons[0].id,
+				amount: '0',
+			},
+		]
 	)
-	let limitAdd = payerCount === persons.length
+	let limitAdd = payerArray.length >= persons.length
 
 	function onOpen() {
 		document.getElementById('add_item').showModal()
@@ -19,78 +22,56 @@ export default function ItemModal() {
 		if (persons !== newPersons) {
 			persons = newPersons
 			setPayerArray(
-				[...Array(persons.length)].map((_, key) => {
-					return <PayerDefaultElement id={key} key={key} />
-				})
+				persons.length && [
+					{
+						id: crypto.randomUUID(),
+						personId: persons[0].id,
+						amount: '0',
+					},
+				]
 			)
 		}
-
-		setPayerCount(persons.length && 1)
 	}
 
 	const handleAddClick = (e) => {
 		e.preventDefault()
-
-		setPayerCount(() => payerCount + 1)
+		setPayerArray([
+			...payerArray,
+			{ id: crypto.randomUUID(), personId: persons[0].id, amount: '0' },
+		])
 	}
 
-	function PayerDefaultElement({ id }) {
-		return (
-			<div className='flex gap-2 ' style={{ width: '100%' }}>
-				<fieldset className='fieldset flex-1'>
-					<legend className='fieldset-legend flex justify-between w-full'>
-						<span>Sino nagbayad?</span>
-						{id > 0 && (
-							<button
-								className='btn btn-soft btn-xs btn-warning'
-								onClick={() => handleDeleteClick(id)}
-							>
-								<svg
-									xmlns='http://www.w3.org/2000/svg'
-									width='16'
-									height='16'
-									fill='currentColor'
-									className='bi bi-trash'
-									viewBox='0 0 16 16'
-								>
-									<path d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z' />
-									<path d='M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z' />
-								</svg>
-							</button>
-						)}
-					</legend>
-					<select className='select'>
-						<option disabled={true}>Pumili</option>
-						{persons.map((person) => {
-							return <option>{person.name}</option>
-						})}
-					</select>
-				</fieldset>
+	const handleDeleteClick = (id) => {
+		console.log('called')
+		setPayerArray(payerArray.filter((payer) => id !== payer.id))
+	}
 
-				<fieldset className='fieldset flex-1 self-end'>
-					<legend className='fieldset-legend'>Magkano?</legend>
-					<label className='input'>
-						<span className='label'>₱</span>
-						<input type='text' placeholder='49' />
-					</label>
-				</fieldset>
-			</div>
-		)
+	const handleChange = (e, id) => {
+		const { name, value } = e.target
+		const index = payerArray.findIndex((payer) => payer.id === id)
+
+		console.log(name, value, index)
+		setPayerArray((payerArray) => {
+			const newArray = [...payerArray]
+			newArray[index][name] = value
+			return newArray
+		})
 	}
 
 	const renderPayerArray = () => {
-		console.log(payerCount, payerArray, limitAdd)
-		return payerArray.slice(0, payerCount)
-	}
-
-	const handleDeleteClick = (index) => {
-		const newArray = [
-			...payerArray.slice(0, index),
-			...payerArray.slice(index + 1),
-			payerArray[index],
-		]
-		setPayerArray(newArray)
-		setPayerCount((payerCount) => payerCount - 1)
+		console.log(payerArray)
+		return payerArray.map(({ id, personId, amount }, index) => (
+			<PayerDefaultElement
+				id={id}
+				key={id}
+				persons={persons}
+				renderDelete={index > 0}
+				personId={personId}
+				amount={amount}
+				onDeleteClick={handleDeleteClick}
+				onChangeValue={handleChange}
+			/>
+		))
 	}
 
 	return (
@@ -100,7 +81,6 @@ export default function ItemModal() {
 			</button>
 			<dialog id='add_item' className='modal'>
 				<div className='modal-box m-2'>
-					{/* <h3 className='font-bold text-lg'>Add Item</h3> */}
 					<div className='flex gap-2 ' style={{ width: '100%' }}>
 						<fieldset className='fieldset flex-1'>
 							<legend className='fieldset-legend'>Ano binili?</legend>
@@ -138,7 +118,8 @@ export default function ItemModal() {
 									</button>
 									<button
 										className='btn btn-soft btn-sm btn-success'
-										onClick={(e) => e.preventDefault()}
+										type='submit'
+										// onClick={(e) => e.preventDefault()}
 									>
 										Submit
 									</button>
@@ -149,5 +130,74 @@ export default function ItemModal() {
 				</div>
 			</dialog>
 		</>
+	)
+}
+
+const PayerDefaultElement = ({
+	id,
+	persons,
+	onChangeValue,
+	onDeleteClick,
+	renderDelete,
+	personId,
+	amount,
+}) => {
+	return (
+		<div className='flex gap-2 ' style={{ width: '100%' }}>
+			<fieldset className='fieldset flex-1'>
+				<legend className='fieldset-legend flex justify-between w-full'>
+					<span>Sino nagbayad?</span>
+					{renderDelete && (
+						<button
+							className='btn btn-soft btn-xs btn-warning'
+							onClick={() => onDeleteClick(id)}
+						>
+							<svg
+								xmlns='http://www.w3.org/2000/svg'
+								width='16'
+								height='16'
+								fill='currentColor'
+								className='bi bi-trash'
+								viewBox='0 0 16 16'
+							>
+								<path d='M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z' />
+								<path d='M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z' />
+							</svg>
+						</button>
+					)}
+				</legend>
+				<select
+					className='select'
+					name='personId'
+					value={personId}
+					onChange={(e) => onChangeValue(e, id)}
+				>
+					<option disabled={true}>Pumili</option>
+					{persons.map((person, index) => {
+						return (
+							<option value={person.id} key={index}>
+								{person.name}
+							</option>
+						)
+					})}
+				</select>
+			</fieldset>
+
+			<fieldset className='fieldset flex-1 self-end'>
+				<legend className='fieldset-legend'>Magkano?</legend>
+				<label className='input'>
+					<span className='label'>₱</span>
+					<input
+						type='number'
+						className='validator'
+						placeholder='49'
+						required
+						name='amount'
+						value={amount === '0' ? '' : amount}
+						onChange={(e) => onChangeValue(e, id)}
+					/>
+				</label>
+			</fieldset>
+		</div>
 	)
 }
