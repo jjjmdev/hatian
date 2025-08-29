@@ -3,6 +3,7 @@ import { getPersons } from '../data.js'
 
 export default function ItemModal() {
 	let persons = getPersons()
+	const modal = document.getElementById('add_item')
 
 	const [payerArray, setPayerArray] = useState(
 		persons.length && [
@@ -16,7 +17,7 @@ export default function ItemModal() {
 	let limitAdd = payerArray.length >= persons.length
 
 	function onOpen() {
-		document.getElementById('add_item').showModal()
+		modal.showModal()
 
 		const newPersons = getPersons()
 		if (persons !== newPersons) {
@@ -42,7 +43,6 @@ export default function ItemModal() {
 	}
 
 	const handleDeleteClick = (id) => {
-		console.log('called')
 		setPayerArray(payerArray.filter((payer) => id !== payer.id))
 	}
 
@@ -50,7 +50,6 @@ export default function ItemModal() {
 		const { name, value } = e.target
 		const index = payerArray.findIndex((payer) => payer.id === id)
 
-		console.log(name, value, index)
 		setPayerArray((payerArray) => {
 			const newArray = [...payerArray]
 			newArray[index][name] = value
@@ -59,7 +58,6 @@ export default function ItemModal() {
 	}
 
 	const renderPayerArray = () => {
-		console.log(payerArray)
 		return payerArray.map(({ id, personId, amount }, index) => (
 			<PayerRow
 				id={id}
@@ -74,35 +72,47 @@ export default function ItemModal() {
 		))
 	}
 
+	const handleSubmit = (e) => {
+		e.preventDefault()
+		console.log('submit')
+	}
+
 	return (
 		<>
-			<button className='btn btn-soft btn-info btn-md mr-2' onClick={onOpen}>
+			<label
+				htmlFor='add_item'
+				className='btn btn-soft btn-info btn-md mr-2'
+				onClick={onOpen}
+			>
 				+ Item
-			</button>
-			<dialog id='add_item' className='modal'>
+			</label>
+
+			<input type='checkbox' id='add_item' className='modal-toggle' />
+			<div className='modal' role='dialog'>
 				<div className='modal-box m-2'>
-					<div className='flex gap-2 ' style={{ width: '100%' }}>
-						<fieldset className='fieldset flex-1'>
-							<legend className='fieldset-legend'>Ano binili?</legend>
-							<input type='text' className='input' placeholder='Yum Burger' />
-						</fieldset>
+					<form onSubmit={handleSubmit}>
+						<div className='flex gap-2 ' style={{ width: '100%' }}>
+							<fieldset className='fieldset flex-1'>
+								<legend className='fieldset-legend'>Ano binili?</legend>
+								<input type='text' className='input' placeholder='Yum Burger' />
+							</fieldset>
 
-						<fieldset className='fieldset flex-1'>
-							<legend className='fieldset-legend'>May service charge?</legend>
-							<label className='input'>
-								<span className='label'>%</span>
-								<input type='text' placeholder='0' defaultValue={'0'} />
-							</label>
-						</fieldset>
-					</div>
+							<fieldset className='fieldset flex-1'>
+								<legend className='fieldset-legend'>May service charge?</legend>
+								<label className='input'>
+									<span className='label'>%</span>
+									<input type='text' placeholder='0' defaultValue={'0'} />
+								</label>
+							</fieldset>
+						</div>
 
-					{renderPayerArray()}
+						{renderPayerArray()}
 
-					<div className='modal-action'>
-						<form method='dialog' className='w-full'>
+						<div className='modal-action'>
 							<div
 								className={
-									'flex mt-3 ' + (limitAdd ? 'justify-end' : 'justify-between')
+									'flex mt-3 w-full ' +
+									(limitAdd ? 'justify-end' : 'justify-between')
 								}
 							>
 								<button
@@ -112,10 +122,14 @@ export default function ItemModal() {
 								>
 									+ may iba pang nagbayad
 								</button>
+
 								<div className='justify-self-end self-end'>
-									<button className='btn btn-soft btn-sm btn-error mr-2'>
+									<label
+										htmlFor='add_item'
+										className='btn btn-soft btn-sm btn-error mr-2'
+									>
 										Cancel
-									</button>
+									</label>
 									<button
 										className='btn btn-soft btn-sm btn-success'
 										type='submit'
@@ -125,10 +139,10 @@ export default function ItemModal() {
 									</button>
 								</div>
 							</div>
-						</form>
-					</div>
+						</div>
+					</form>
 				</div>
-			</dialog>
+			</div>
 		</>
 	)
 }
@@ -168,6 +182,7 @@ const PayerRow = ({
 				</legend>
 				<select
 					className='select'
+					required
 					name='personId'
 					value={personId}
 					onChange={(e) => onChangeValue(e, id)}
@@ -185,7 +200,7 @@ const PayerRow = ({
 
 			<fieldset className='fieldset flex-1 self-end'>
 				<legend className='fieldset-legend'>Magkano?</legend>
-				<label className='input'>
+				<label className='input validator'>
 					<span className='label'>₱</span>
 					<input
 						type='number'
