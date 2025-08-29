@@ -3,7 +3,9 @@ import { getPersons } from '../data.js'
 
 export default function ItemModal() {
 	let persons = getPersons()
-	const modal = document.getElementById('add_item')
+
+	const [itemName, setItemName] = useState('')
+	const [serviceCharge, setServiceCharge] = useState('0')
 
 	const [payerArray, setPayerArray] = useState(
 		persons.length && [
@@ -17,8 +19,6 @@ export default function ItemModal() {
 	let limitAdd = payerArray.length >= persons.length
 
 	function onOpen() {
-		modal.showModal()
-
 		const newPersons = getPersons()
 		if (persons !== newPersons) {
 			persons = newPersons
@@ -74,7 +74,13 @@ export default function ItemModal() {
 
 	const handleSubmit = (e) => {
 		e.preventDefault()
-		console.log('submit')
+		// Close the modal
+		document.querySelector('#add_item').checked = false
+		console.log({
+			itemName,
+			serviceCharge,
+			payer: payerArray,
+		})
 	}
 
 	return (
@@ -94,14 +100,26 @@ export default function ItemModal() {
 						<div className='flex gap-2 ' style={{ width: '100%' }}>
 							<fieldset className='fieldset flex-1'>
 								<legend className='fieldset-legend'>Ano binili?</legend>
-								<input type='text' className='input' placeholder='Yum Burger' />
+								<input
+									type='text'
+									className='input'
+									placeholder='Yum Burger'
+									required
+									value={itemName}
+									onChange={(e) => setItemName(e.target.value)}
+								/>
 							</fieldset>
 
 							<fieldset className='fieldset flex-1'>
 								<legend className='fieldset-legend'>May service charge?</legend>
-								<label className='input'>
+								<label className='input validator'>
 									<span className='label'>%</span>
-									<input type='text' placeholder='0' defaultValue={'0'} />
+									<input
+										type='number'
+										placeholder='0'
+										value={serviceCharge === '0' ? '' : serviceCharge}
+										onChange={(e) => setServiceCharge(e.target.value)}
+									/>
 								</label>
 							</fieldset>
 						</div>
