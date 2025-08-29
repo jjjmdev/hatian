@@ -21,17 +21,20 @@ export default function ItemsTable() {
 	return (
 		<>
 			<div className='overflow-x-auto'>
-				<table className='table table-zebra text-center table-xs text-nowrap'>
+				<table
+					className='table table-zebra text-center table-xs table-pin-rows table-pin-cols text-nowrap'
+					style={{ maxWidth: '1200px', margin: '0 auto' }}
+				>
 					{/* head */}
 					<thead>
 						<tr>
-							<th>Presyo</th>
+							<td>Presyo</td>
 							<th>Item Name</th>
-							<th>SC?</th>
-							<th>Paid By?</th>
-							<th>Hatian</th>
+							<td>SC?</td>
+							<td>Paid By?</td>
+							<td>Hatian</td>
 							{persons.map((person) => (
-								<th>{person.name}</th>
+								<td>{person.name}</td>
 							))}
 						</tr>
 					</thead>
@@ -40,7 +43,7 @@ export default function ItemsTable() {
 							return (
 								<tr key={item.txId}>
 									<td>₱{item.total}</td>
-									<td>{item.itemName}</td>
+									<th>{item.itemName}</th>
 									<td>{item.serviceCharge ? item.serviceCharge + '%' : '—'}</td>
 									<td>
 										{item.payers.map(({ id, personId, amount }) => (
@@ -71,8 +74,19 @@ export default function ItemsTable() {
 							<td></td>
 							<td className='text-right'>Total:</td>
 							{persons.map((person, index) => {
-								const total = computeTotalOfPerson(txs, person.id)
-								return <ColoredTableData index={index} amount={total} />
+								const tally = computeTallyOfPerson(txs, person.id)
+								return <ColoredTableData index={index} amount={tally} />
+							})}
+						</tr>
+						<tr className='text-xs text-center'>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td className='text-right'>Spent:</td>
+							{persons.map((person, index) => {
+								const totalSpent = computeTotalSpentOfPerson(items, person.id)
+								return <td key={index}>₱{totalSpent}</td>
 							})}
 						</tr>
 					</tfoot>
@@ -104,7 +118,7 @@ const computeTxs = (items, persons) => {
 	return txs
 }
 
-const computeTotalOfPerson = (txs, id) => {
+const computeTallyOfPerson = (txs, id) => {
 	let total = 0
 	Object.values(txs[id]).forEach((amount) => {
 		total += amount
@@ -123,4 +137,16 @@ const ColoredTableData = ({ amount, index }) => {
 			{amount === 0 ? '—' : amount > 0 ? '₱' + amount : '-₱' + Math.abs(amount)}
 		</td>
 	)
+}
+
+const computeTotalSpentOfPerson = (items, id) => {
+	let total = 0
+
+	items.forEach((item) => {
+		if (item.buyers.includes(id)) {
+			total += item.total / item.buyers.length
+		}
+	})
+
+	return roundTwoDecimals(total)
 }
