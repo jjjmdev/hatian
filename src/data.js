@@ -20,21 +20,26 @@ export function updatePerson(id, name) {
 		persons.push({ id, name })
 	}
 
-	return localStorage.setItem('persons', JSON.stringify(persons))
+	localStorage.setItem('persons', JSON.stringify(persons))
+	dispatch()
+	return true
 }
 
 export function deletePerson(id) {
 	const persons = getPersons()
 
-	return localStorage.setItem(
+	localStorage.setItem(
 		'persons',
 		JSON.stringify(persons.filter((person) => person.id !== id))
 	)
+	dispatch()
+	return true
 }
 
 export function resetData() {
 	localStorage.setItem('persons', JSON.stringify([]))
 	localStorage.setItem('items', JSON.stringify([]))
+	dispatch()
 	return true
 }
 
@@ -47,5 +52,11 @@ export function getItems() {
 
 export function addItem(newItem) {
 	const items = getItems()
-	return localStorage.setItem('items', JSON.stringify([...items, newItem]))
+	localStorage.setItem('items', JSON.stringify([...items, newItem]))
+	dispatch()
+	return true
+}
+
+function dispatch() {
+	window.dispatchEvent(new Event('storage'))
 }
