@@ -4,7 +4,7 @@ import { getPersons, addItem } from '../data.js'
 export default function ItemModal() {
 	let persons = getPersons()
 
-	const [payers, setPayers] = useState(
+	const [payers, setayers] = useState(
 		persons.length && [
 			{
 				id: crypto.randomUUID(),
@@ -36,21 +36,21 @@ export default function ItemModal() {
 
 	const handleAddClick = (e) => {
 		e.preventDefault()
-		setPayers([
+		setayers([
 			...payers,
 			{ id: crypto.randomUUID(), personId: persons[0].id, amount: '0' },
 		])
 	}
 
 	const handleDeleteClick = (id) => {
-		setPayers(payers.filter((payer) => id !== payer.id))
+		setayers(payers.filter((payer) => id !== payer.id))
 	}
 
 	const handleChange = (e, id) => {
 		const { name, value } = e.target
 		const index = payers.findIndex((payer) => payer.id === id)
 
-		setPayers((payers) => {
+		setayers((payers) => {
 			const newArray = [...payers]
 			newArray[index][name] = value
 			return newArray
@@ -107,7 +107,7 @@ export default function ItemModal() {
 	const resetForm = () => {
 		setItemName('')
 		setServiceCharge('0')
-		setPayers(
+		setayers(
 			persons.length && [
 				{
 					id: crypto.randomUUID(),
@@ -174,9 +174,7 @@ export default function ItemModal() {
 								</button>
 
 								<span className='badge badge-sm badge-soft badge-info'>
-									<strong>
-										Total:{' ₱' + (totalAmount ? totalAmount : '')}
-									</strong>
+									<strong>Total:{totalAmount ? ' ₱' + totalAmount : ''}</strong>
 								</span>
 							</div>
 
