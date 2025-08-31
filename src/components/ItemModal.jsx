@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { getPersons, addItem } from '../data.js'
 import { roundTwoDecimals, priceAfterSC } from '../utils/utils'
 
@@ -33,6 +33,14 @@ export default function ItemModal() {
 
 			return priceAfterSC(serviceCharge, amount)
 		}, 0)
+
+	useEffect(() => {
+		document.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape') {
+				document.querySelector('#add_item').checked = false
+			}
+		})
+	}, [])
 
 	function onOpen() {
 		const newPersons = getPersons()
