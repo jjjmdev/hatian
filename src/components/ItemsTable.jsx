@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { getPersonName, getPersons, getItems } from '../data'
+import { roundTwoDecimals } from '../utils/utils'
 
 export default function ItemsTable() {
 	const [items, setItems] = useState(getItems())
@@ -67,7 +68,10 @@ export default function ItemsTable() {
 					<tfoot>
 						<tr>
 							<td className='text-info'>
-								₱{items.reduce((total, item) => total + item.total, 0)}
+								₱
+								{roundTwoDecimals(
+									items.reduce((total, item) => total + item.total, 0)
+								)}
 							</td>
 							<td></td>
 							<td></td>
@@ -125,10 +129,6 @@ const computeTallyOfPerson = (txs, id) => {
 	})
 
 	return roundTwoDecimals(total)
-}
-
-const roundTwoDecimals = (number) => {
-	return Math.round(number * 100) / 100
 }
 
 const ColoredTableData = ({ amount, index }) => {

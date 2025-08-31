@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { getPersons, addItem } from '../data.js'
+import { roundTwoDecimals, priceAfterSC } from '../utils/utils'
 
 export default function ItemModal() {
 	let persons = getPersons()
 
-	const [payers, setayers] = useState(
+	const [payers, setPayers] = useState(
 		persons.length && [
 			{
 				id: crypto.randomUUID(),
@@ -18,12 +19,19 @@ export default function ItemModal() {
 	const [buyers, setBuyers] = useState(
 		persons.length && persons.map(({ id }) => id)
 	) // [id1, id2, id3]
+	const [afterSC, setAfterSC] = useState(true)
 
 	let limitAdd = payers.length >= persons.length
 	let totalAmount =
 		payers.length &&
 		payers.reduce((total, payer) => {
-			return total + Number(payer.amount)
+			const amount = Number(payer.amount)
+
+			if (afterSC) {
+				return total + amount
+			}
+
+			return priceAfterSC(serviceCharge, amount)
 		}, 0)
 
 	function onOpen() {
@@ -36,21 +44,21 @@ export default function ItemModal() {
 
 	const handleAddClick = (e) => {
 		e.preventDefault()
-		setayers([
+		setPayers([
 			...payers,
 			{ id: crypto.randomUUID(), personId: persons[0].id, amount: '0' },
 		])
 	}
 
 	const handleDeleteClick = (id) => {
-		setayers(payers.filter((payer) => id !== payer.id))
+		setPayers(payers.filter((payer) => id !== payer.id))
 	}
 
 	const handleChange = (e, id) => {
 		const { name, value } = e.target
 		const index = payers.findIndex((payer) => payer.id === id)
 
-		setayers((payers) => {
+		setPayers((payers) => {
 			const newArray = [...payers]
 			newArray[index][name] = value
 			return newArray
@@ -70,6 +78,9 @@ export default function ItemModal() {
 					amount={amount}
 					onDeleteClick={handleDeleteClick}
 					onChangeValue={handleChange}
+					serviceCharge={serviceCharge}
+					afterSC={afterSC}
+					setAfterSC={setAfterSC}
 				/>
 			))
 		)
@@ -88,16 +99,25 @@ export default function ItemModal() {
 
 	const handleSubmit = (e) => {
 		e.preventDefault()
+		console.log(afterSC)
 		// Close the modal
 		document.querySelector('#add_item').checked = false
 		addItem({
 			txId: crypto.randomUUID(),
 			itemName,
 			serviceCharge: Number(serviceCharge),
-			payers: payers.map((payer) => ({
-				...payer,
-				amount: Number(payer.amount),
-			})),
+			payers: payers.map((payer) => {
+				let amount = Number(payer.amount)
+
+				if (!afterSC) {
+					amount = priceAfterSC(serviceCharge, amount)
+				}
+
+				return {
+					...payer,
+					amount,
+				}
+			}),
 			buyers,
 			total: totalAmount,
 		})
@@ -107,7 +127,8 @@ export default function ItemModal() {
 	const resetForm = () => {
 		setItemName('')
 		setServiceCharge('0')
-		setayers(
+		setAfterSC(true)
+		setPayers(
 			persons.length && [
 				{
 					id: crypto.randomUUID(),
@@ -157,7 +178,12 @@ export default function ItemModal() {
 											type='number'
 											placeholder='0'
 											value={serviceCharge === '0' ? '' : serviceCharge}
-											onChange={(e) => setServiceCharge(e.target.value)}
+											onChange={(e) => {
+												setServiceCharge(e.target.value)
+												if (e.target.value === '' || e.target.value === '0') {
+													setAfterSC(true)
+												}
+											}}
 										/>
 									</label>
 								</fieldset>
@@ -174,7 +200,10 @@ export default function ItemModal() {
 								</button>
 
 								<span className='badge badge-sm badge-soft badge-info'>
-									<strong>Total:{totalAmount ? ' ₱' + totalAmount : ''}</strong>
+									<strong>
+										Total:
+										{totalAmount ? ' ₱' + roundTwoDecimals(totalAmount) : ''}
+									</strong>
 								</span>
 							</div>
 
@@ -198,7 +227,6 @@ export default function ItemModal() {
 										<button
 											className='btn btn-soft btn-sm btn-success'
 											type='submit'
-											// onClick={(e) => e.preventDefault()}
 										>
 											Submit
 										</button>
@@ -234,6 +262,9 @@ const PayerRow = ({
 	renderDelete,
 	personId,
 	amount,
+	serviceCharge,
+	afterSC,
+	setAfterSC,
 }) => {
 	return (
 		<div className='flex gap-2 ' style={{ width: '100%' }}>
@@ -278,7 +309,29 @@ const PayerRow = ({
 			</fieldset>
 
 			<fieldset className='fieldset flex-1 self-end'>
-				<legend className='fieldset-legend'>Magkano?</legend>
+				<legend className='fieldset-legend w-full flex justify-between'>
+					<span>Magkano?</span>
+
+					{serviceCharge !== '0' && serviceCharge !== '' && (
+						<label className='swap'>
+							<input
+								type='checkbox'
+								checked={afterSC}
+								onChange={(e) => setAfterSC(e.target.checked)}
+							/>
+							<div className='swap-off'>
+								<span className='badge badge-xs badge-soft badge-accent'>
+									Before SC
+								</span>
+							</div>
+							<div className='swap-on'>
+								<span className='badge badge-xs badge-soft badge-success'>
+									After SC
+								</span>
+							</div>
+						</label>
+					)}
+				</legend>
 				<label className='input validator'>
 					<span className='label'>₱</span>
 					<input
@@ -298,18 +351,18 @@ const PayerRow = ({
 
 const BuyersList = ({ persons, buyers, onBuyersChange }) => {
 	return (
-		<fieldset className='fieldset'>
+		<fieldset className='fieldset bg-base-100 border-base-300 rounded-box w-64 border px-3 pb-2'>
 			<legend className='fieldset-legend pb-1'>Mga Maghahati:</legend>
-			<div className='grid grid-cols-2 w-full gap-0.5 text-center'>
+			<div className='grid grid-cols-2 w-full gap-0.5 text-left'>
 				{persons.map(({ id, name }) => (
 					<label key={id}>
-						{name}
 						<input
 							type='checkbox'
 							checked={buyers.includes(id)}
-							className='checkbox checkbox-xs ml-1'
+							className='checkbox checkbox-xs mr-1'
 							onChange={(e) => onBuyersChange(e, id)}
 						/>
+						{name}
 					</label>
 				))}
 			</div>
