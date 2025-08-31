@@ -35,8 +35,8 @@ export default function ItemsTable() {
 							<td>SC?</td>
 							<td>Paid By?</td>
 							<td>Hatian</td>
-							{persons.map((person) => (
-								<td>{person.name}</td>
+							{persons.map((person, index) => (
+								<td key={index}>{person.name}</td>
 							))}
 						</tr>
 					</thead>
@@ -101,7 +101,13 @@ export default function ItemsTable() {
 									{persons.map((person, index) => {
 										const amount =
 											roundTwoDecimals(txs[person.id][item.txId]) || 0
-										return <ColoredTableData index={index} amount={amount} />
+										return (
+											<ColoredTableData
+												index={index}
+												key={index}
+												amount={amount}
+											/>
+										)
 									})}
 								</tr>
 							)
@@ -123,7 +129,9 @@ export default function ItemsTable() {
 							<td className='text-right'>Total:</td>
 							{persons.map((person, index) => {
 								const tally = computeTallyOfPerson(txs, person.id)
-								return <ColoredTableData index={index} amount={tally} />
+								return (
+									<ColoredTableData index={index} key={index} amount={tally} />
+								)
 							})}
 						</tr>
 						<tr className='text-xs text-center'>
