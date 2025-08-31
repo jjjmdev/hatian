@@ -67,6 +67,16 @@ export function addItem(newItem) {
 	return true
 }
 
+export function deleteItem(id) {
+	const items = getItems()
+	localStorage.setItem(
+		'items',
+		JSON.stringify(items.filter((item) => item.txId !== id))
+	)
+	dispatch()
+	return true
+}
+
 function dispatch() {
 	window.dispatchEvent(new Event('storage'))
 }
