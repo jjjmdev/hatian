@@ -57,12 +57,18 @@ export function getItems() {
 
 export function getItem(id) {
 	const items = getItems()
-	return items.find((item) => item.id === id)
+	return items.find((item) => item.txId === id)
 }
 
 export function addItem(newItem) {
 	const items = getItems()
-	localStorage.setItem('items', JSON.stringify([...items, newItem]))
+	localStorage.setItem(
+		'items',
+		JSON.stringify([
+			...items.filter((item) => item.txId !== newItem.txId),
+			newItem,
+		])
+	)
 	dispatch()
 	return true
 }

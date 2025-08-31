@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { getPersons, addItem } from '../data.js'
+import { getPersons, addItem, getItem } from '../data.js'
 import { roundTwoDecimals, priceAfterSC } from '../utils/utils'
 
-export default function ItemModal() {
+export default function ItemModal({ txId, onOpenModal }) {
 	let persons = getPersons()
 
 	const [payers, setPayers] = useState(
@@ -20,6 +20,16 @@ export default function ItemModal() {
 		persons.length && persons.map(({ id }) => id)
 	) // [id1, id2, id3]
 	const [afterSC, setAfterSC] = useState(true)
+
+	useEffect(() => {
+		if (txId) {
+			const item = getItem(txId)
+			setItemName(item.itemName)
+			setServiceCharge(item.serviceCharge)
+			setPayers(item.payers)
+			setAfterSC(true)
+		}
+	}, [txId])
 
 	let limitAdd = payers.length >= persons.length
 	let totalAmount =
@@ -44,10 +54,13 @@ export default function ItemModal() {
 
 	function onOpen() {
 		const newPersons = getPersons()
+
 		if (persons !== newPersons) {
 			persons = newPersons
 			resetForm()
 		}
+
+		onOpenModal()
 	}
 
 	const handleAddClick = (e) => {
@@ -111,7 +124,7 @@ export default function ItemModal() {
 		// Close the modal
 		document.querySelector('#add_item').checked = false
 		addItem({
-			txId: crypto.randomUUID(),
+			txId: txId || crypto.randomUUID(),
 			itemName,
 			serviceCharge: Number(serviceCharge),
 			payers: payers.map((payer) => {
@@ -129,7 +142,6 @@ export default function ItemModal() {
 			buyers,
 			total: totalAmount,
 		})
-		resetForm()
 	}
 
 	const resetForm = () => {
