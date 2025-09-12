@@ -23,7 +23,7 @@ function App() {
 				<PersonModal />
 				<ResetModal />
 			</div>
-			<div className='w-full text-center px-10'>
+			<div className='w-full text-center'>
 				<ItemsTable onEditClick={handleEditClick} />
 			</div>
 		</>

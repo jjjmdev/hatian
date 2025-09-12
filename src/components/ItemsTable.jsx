@@ -29,10 +29,7 @@ export default function ItemsTable({ onEditClick }) {
 					{/* head */}
 					<thead>
 						<tr>
-							<td className='w-min'></td>
-							<td>Presyo</td>
-							<th>Item Name</th>
-							<td>SC?</td>
+							<td>Item</td>
 							<td>Paid By?</td>
 							<td>Hatian</td>
 							{persons.map((person, index) => (
@@ -44,6 +41,35 @@ export default function ItemsTable({ onEditClick }) {
 						{items.map((item) => {
 							return (
 								<tr key={item.txId}>
+									
+									<td>
+										<div className='font-bold mb-1'>{item.itemName}</div>
+										<div>₱{roundTwoDecimals(item.total)}</div>
+										<div>{item.serviceCharge ? '(SC: ' + item.serviceCharge + '%)' : ''}</div>
+										</td>
+									<td>
+										{item.payers.map(({ id, personId, amount }) => (
+											<div key={id} className='w-full'>
+												{getPersonName(personId)}
+												{amount < item.total ? ' – ₱' + roundTwoDecimals(amount) : <div>(Full Amount)</div>}
+											</div>
+										))}
+									</td>
+									<td>
+										<div>₱{roundTwoDecimals(item.total / item.buyers.length)} ea.</div>
+										<div>{item.buyers.length} {item.buyers.length > 1 ? 'persons' : 'person'}</div>
+										</td>
+									{persons.map((person, index) => {
+										const amount =
+											roundTwoDecimals(txs[person.id][item.txId]) || 0
+										return (
+											<ColoredTableData
+												index={index}
+												key={index}
+												amount={amount}
+											/>
+										)
+									})}
 									<td className='w-min'>
 										<button
 											className='btn btn-ghost btn-xs'
@@ -92,29 +118,6 @@ export default function ItemsTable({ onEditClick }) {
 											</svg>
 										</button>
 									</td>
-									<td>₱{roundTwoDecimals(item.total)}</td>
-									<th>{item.itemName}</th>
-									<td>{item.serviceCharge ? item.serviceCharge + '%' : '—'}</td>
-									<td>
-										{item.payers.map(({ id, personId, amount }) => (
-											<div key={id} className='w-full'>
-												{getPersonName(personId)}
-												{amount < item.total && ' – ₱' + amount}
-											</div>
-										))}
-									</td>
-									<td>₱{roundTwoDecimals(item.total / item.buyers.length)}</td>
-									{persons.map((person, index) => {
-										const amount =
-											roundTwoDecimals(txs[person.id][item.txId]) || 0
-										return (
-											<ColoredTableData
-												index={index}
-												key={index}
-												amount={amount}
-											/>
-										)
-									})}
 								</tr>
 							)
 						})}
@@ -129,9 +132,6 @@ export default function ItemsTable({ onEditClick }) {
 									items.reduce((total, item) => total + item.total, 0)
 								)}
 							</td>
-							<td></td>
-							<td></td>
-							<td></td>
 							<td className='text-right'>Total:</td>
 							{persons.map((person, index) => {
 								const tally = computeTallyOfPerson(txs, person.id)
@@ -139,11 +139,9 @@ export default function ItemsTable({ onEditClick }) {
 									<ColoredTableData index={index} key={index} amount={tally} />
 								)
 							})}
+							<td></td>
 						</tr>
 						<tr className='text-xs text-center'>
-							<td></td>
-							<td></td>
-							<td></td>
 							<td></td>
 							<td></td>
 							<td className='text-right'>Spent:</td>
@@ -151,6 +149,7 @@ export default function ItemsTable({ onEditClick }) {
 								const totalSpent = computeTotalSpentOfPerson(items, person.id)
 								return <td key={index}>₱{totalSpent}</td>
 							})}
+							<td></td>
 						</tr>
 					</tfoot>
 				</table>
