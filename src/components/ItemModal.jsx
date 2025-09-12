@@ -202,6 +202,8 @@ export default function ItemModal({ txId, onOpenModal }) {
 												setServiceCharge(e.target.value)
 												if (e.target.value === '' || e.target.value === '0') {
 													setAfterSC(true)
+												} else {
+													setAfterSC(false)
 												}
 											}}
 										/>
