@@ -92,7 +92,7 @@ export default function ItemsTable({ onEditClick }) {
 											</svg>
 										</button>
 									</td>
-									<td>₱{item.total}</td>
+									<td>₱{roundTwoDecimals(item.total)}</td>
 									<th>{item.itemName}</th>
 									<td>{item.serviceCharge ? item.serviceCharge + '%' : '—'}</td>
 									<td>
