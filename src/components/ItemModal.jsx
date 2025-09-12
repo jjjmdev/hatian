@@ -41,7 +41,7 @@ export default function ItemModal({ txId, onOpenModal }) {
 				return total + amount
 			}
 
-			return priceAfterSC(serviceCharge, amount)
+			return total + priceAfterSC(serviceCharge, amount)
 		}, 0)
 
 	useEffect(() => {
