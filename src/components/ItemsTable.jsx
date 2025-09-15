@@ -4,14 +4,22 @@ import { roundTwoDecimals } from '../utils/utils'
 export default function ItemsTable({ onEditClick, persons, items }) {
   const txs = computeTxs(items, persons)
 
+  if (!items || items.length < 1) {
+    return (
+      <>
+        <div style={{ opacity: '30%' }}>No data available.</div>
+        <div style={{ opacity: '30%' }}>Add ka muna ng person and item.</div>
+      </>
+    )
+  }
+
   return (
     <>
-      <div className='overflow-x-auto'>
+      <div className='overflow-x-auto md:px-10'>
         <table
-          className='table table-zebra text-center table-xs table-pin-rows table-pin-cols text-nowrap'
+          className='table table-zebra text-center table-xs table-pin-rows table-pin-cols text-nowrap table-auto'
           style={{ maxWidth: '1200px', margin: '0 auto' }}
         >
-          {/* head */}
           <thead>
             <tr>
               <td>Item</td>
@@ -67,7 +75,7 @@ export default function ItemsTable({ onEditClick, persons, items }) {
                       />
                     )
                   })}
-                  <td className='w-min'>
+                  <td className='actions'>
                     <button
                       className='btn btn-ghost btn-xs'
                       onClick={() => {
