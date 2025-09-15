@@ -16,7 +16,105 @@ export default function ItemsTable({ onEditClick, persons, items }) {
   return (
     <>
       <div className='w-full flex items-center flex-col'>
-        <h1 className='font-semibold text-xl mb-2'>Price Breakdown</h1>
+        <h1 className='font-semibold text-xl'>Utangan</h1>
+        <div className='overflow-x-auto md:px-10 w-fit'>
+          <table className='table table-zebra table-xs text-center'>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Will Receive</th>
+                <th>Will Pay</th>
+              </tr>
+            </thead>
+            <tbody>
+              {persons.map((person, index) => {
+                const tally = computeTallyOfPerson(txs, person.id)
+                return (
+                  <tr key={index}>
+                    <th>{person.name}</th>
+                    {tally > 0 ? (
+                      <ColoredTableData
+                        index={index}
+                        key={index}
+                        amount={tally}
+                      />
+                    ) : (
+                      <td>—</td>
+                    )}
+                    {tally < 0 ? (
+                      <ColoredTableData
+                        index={index}
+                        key={index}
+                        amount={tally}
+                      />
+                    ) : (
+                      <td>—</td>
+                    )}
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div
+        className='divider'
+        style={{ width: '75%', margin: '1.5rem auto 0.5rem' }}
+      ></div>
+
+      <div className='w-full flex items-center flex-col'>
+        <h1 className='font-semibold text-xl mt-5'>Nagbayad</h1>
+        <div className='overflow-x-auto md:px-10 w-fit'>
+          <table className='table table-zebra table-xs text-center'>
+            <thead>
+              <tr>
+                <th>Item</th>
+                {persons.map((person, index) => (
+                  <th key={index}>{person.name}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item, index) => {
+                return (
+                  <tr key={index}>
+                    <td>
+                      <div>{item.itemName}</div>
+                    </td>
+                    {persons.map((person, index) => {
+                      const amount = item.payers.find(
+                        (payer) => payer.personId === person.id
+                      )?.amount
+                      return <td key={index}>{amount ? '₱' + amount : '—'}</td>
+                    })}
+                  </tr>
+                )
+              })}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td></td>
+                {persons.map((person, index) => {
+                  return (
+                    <td key={index}>
+                      ₱{computeTotalSpentOfPerson(items, person.id)}
+                    </td>
+                  )
+                })}
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div
+        className='divider'
+        style={{ width: '75%', margin: '1.5rem auto 0.5rem' }}
+      ></div>
+
+      <div className='w-full flex items-center flex-col'>
+        <h1 className='font-semibold text-xl mt-5'>Hatian Breakdown</h1>
         <div className='overflow-x-auto md:px-10 px-2 w-full md:w-fit'>
           <table className='table table-zebra text-center table-xs table-pin-rows table-pin-cols text-nowrap table-auto'>
             <thead>
@@ -167,55 +265,10 @@ export default function ItemsTable({ onEditClick, persons, items }) {
         </div>
       </div>
 
-      <div className='divider' style={{ width: '50%', margin: '0 auto' }}></div>
-
-      <div className='w-full flex items-center flex-col'>
-        <h1 className='font-semibold text-xl mt-5'>Mga Binayaran</h1>
-        <div className='overflow-x-auto md:px-10 w-fit'>
-          <table className='table table-zebra table-xs text-center'>
-            <thead>
-              <tr>
-                <th></th>
-                <th>Item</th>
-                {persons.map((person, index) => (
-                  <th key={index}>{person.name}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item, index) => {
-                return (
-                  <tr key={index}>
-                    <th>#{index + 1}</th>
-                    <td>
-                      <div>{item.itemName}</div>
-                    </td>
-                    {persons.map((person, index) => {
-                      const amount = item.payers.find(
-                        (payer) => payer.personId === person.id
-                      )?.amount
-                      return <td key={index}>{amount ? '₱' + amount : '—'}</td>
-                    })}
-                  </tr>
-                )
-              })}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td></td>
-                <td></td>
-                {persons.map((person, index) => {
-                  return (
-                    <td key={index}>
-                      ₱{computeTotalSpentOfPerson(items, person.id)}
-                    </td>
-                  )
-                })}
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
+      <div
+        className='divider'
+        style={{ width: '75%', margin: '1.5rem auto 0.5rem' }}
+      ></div>
     </>
   )
 }
