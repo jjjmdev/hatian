@@ -39,7 +39,9 @@ export default function ItemsTable({ onEditClick, persons, items }) {
                         amount={tally}
                       />
                     ) : (
-                      <td>—</td>
+                      <td>
+                        <span className='opacity-30'>—</span>
+                      </td>
                     )}
                     {tally < 0 ? (
                       <ColoredTableData
@@ -48,7 +50,9 @@ export default function ItemsTable({ onEditClick, persons, items }) {
                         amount={tally}
                       />
                     ) : (
-                      <td>—</td>
+                      <td>
+                        <span className='opacity-30'>—</span>
+                      </td>
                     )}
                   </tr>
                 )
@@ -86,7 +90,16 @@ export default function ItemsTable({ onEditClick, persons, items }) {
                       const amount = item.payers.find(
                         (payer) => payer.personId === person.id
                       )?.amount
-                      return <td key={index}>{amount ? '₱' + amount : '—'}</td>
+
+                      return (
+                        <td key={index}>
+                          {amount ? (
+                            '₱' + amount
+                          ) : (
+                            <span className='opacity-30'>—</span>
+                          )}
+                        </td>
+                      )
                     })}
                   </tr>
                 )
@@ -305,9 +318,17 @@ const computeTallyOfPerson = (txs, id) => {
 }
 
 const ColoredTableData = ({ amount, index }) => {
+  if (amount === 0) {
+    return (
+      <td key={index}>
+        <span className='opacity-30'>—</span>
+      </td>
+    )
+  }
+
   return (
     <td key={index} className={amount > 0 ? 'text-success' : 'text-warning'}>
-      {amount === 0 ? '—' : amount > 0 ? '₱' + amount : '-₱' + Math.abs(amount)}
+      {amount > 0 ? '₱' + amount : '-₱' + Math.abs(amount)}
     </td>
   )
 }
