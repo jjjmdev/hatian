@@ -48,3 +48,7 @@ body::-webkit-scrollbar-button {
 .modal-box {
   max-height: 75vh;
 }
+
+legend.fieldset-legend {
+  text-align: left;
+}

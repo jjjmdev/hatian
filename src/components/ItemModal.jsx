@@ -173,8 +173,10 @@ export default function ItemModal({ txId, onOpenModal, persons }) {
           {persons.length ? (
             <form onSubmit={handleSubmit}>
               <div className='md:flex gap-2 ' style={{ width: '100%' }}>
-                <fieldset className='fieldset flex-1'>
-                  <legend className='fieldset-legend'>Ano binili?</legend>
+                <fieldset className='fieldset md:flex-1'>
+                  <legend className='fieldset-legend w-full'>
+                    Ano binili?
+                  </legend>
                   <input
                     type='text'
                     className='input'
@@ -186,7 +188,7 @@ export default function ItemModal({ txId, onOpenModal, persons }) {
                 </fieldset>
 
                 <fieldset className='fieldset md:flex-1'>
-                  <legend className='fieldset-legend'>
+                  <legend className='fieldset-legend w-full'>
                     May service charge?
                   </legend>
                   <label className='input validator'>
