@@ -44,3 +44,7 @@ body::-webkit-scrollbar-button {
 .modal .modal-action fieldset {
   width: 100%;
 }
+
+.modal-box {
+  max-height: 90vh;
+}
