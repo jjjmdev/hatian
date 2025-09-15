@@ -169,10 +169,10 @@ export default function ItemModal({ txId, onOpenModal, persons }) {
 
       <input type='checkbox' id='add_item' className='modal-toggle' />
       <div className='modal' role='dialog'>
-        <div className='modal-box m-2'>
+        <div className='modal-box'>
           {persons.length ? (
             <form onSubmit={handleSubmit}>
-              <div className='flex gap-2 ' style={{ width: '100%' }}>
+              <div className='md:flex gap-2 ' style={{ width: '100%' }}>
                 <fieldset className='fieldset flex-1'>
                   <legend className='fieldset-legend'>Ano binili?</legend>
                   <input
@@ -185,7 +185,7 @@ export default function ItemModal({ txId, onOpenModal, persons }) {
                   />
                 </fieldset>
 
-                <fieldset className='fieldset flex-1'>
+                <fieldset className='fieldset md:flex-1'>
                   <legend className='fieldset-legend'>
                     May service charge?
                   </legend>
@@ -209,26 +209,26 @@ export default function ItemModal({ txId, onOpenModal, persons }) {
               </div>
 
               {renderPayers()}
-              <div className='w-full flex justify-between mt-1'>
-                <button
-                  className='btn btn-xs'
+              <div className='w-full md:flex md:justify-between mt-1'>
+                <div
+                  className='btn btn-xs w-full md:w-auto mb-1 md:mb-0'
                   onClick={handleAddClick}
                   disabled={limitAdd}
                 >
                   + may iba pang nagbayad
-                </button>
+                </div>
 
-                <span className='badge badge-sm badge-soft badge-info'>
-                  <strong>
+                <div className='badge badge-sm badge-soft badge-info'>
+                  <strong className='text-sm'>
                     Total:
                     {totalAmount ? ' ₱' + roundTwoDecimals(totalAmount) : ''}
                   </strong>
-                </span>
+                </div>
               </div>
 
               <div className='modal-action'>
-                <div className='flex w-full'>
-                  <div className='flex-1'>
+                <div className='md:flex w-full mt-2 md:mt-0'>
+                  <div className='md:flex-1'>
                     <BuyersList
                       persons={persons}
                       buyers={buyers}
@@ -236,15 +236,15 @@ export default function ItemModal({ txId, onOpenModal, persons }) {
                     />
                   </div>
 
-                  <div className='mt-3 flex-1 text-right'>
+                  <div className='mt-3 md:mt-0 md:flex-1 md:text-right md:self-end'>
                     <label
                       htmlFor='add_item'
-                      className='btn btn-soft btn-sm btn-error mr-2'
+                      className='btn btn-soft btn-sm btn-error md:mr-2 mb-2 md:mb-0 w-full md:w-auto'
                     >
                       Cancel
                     </label>
                     <button
-                      className='btn btn-soft btn-sm btn-success'
+                      className='btn btn-soft btn-sm btn-success w-full md:w-auto'
                       type='submit'
                     >
                       Submit
@@ -286,8 +286,8 @@ const PayerRow = ({
   setAfterSC,
 }) => {
   return (
-    <div className='flex gap-2 ' style={{ width: '100%' }}>
-      <fieldset className='fieldset flex-1'>
+    <div className='md:flex gap-2 ' style={{ width: '100%' }}>
+      <fieldset className='fieldset md:flex-1'>
         <legend className='fieldset-legend flex justify-between w-full'>
           <span>Sino nagbayad?</span>
           {renderDelete && (
@@ -340,11 +340,45 @@ const PayerRow = ({
               />
               <div className='swap-off'>
                 <span className='badge badge-xs badge-soft badge-accent'>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='12'
+                    height='12'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='2'
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    className='lucide lucide-arrow-left-right-icon lucide-arrow-left-right'
+                  >
+                    <path d='M8 3 4 7l4 4' />
+                    <path d='M4 7h16' />
+                    <path d='m16 21 4-4-4-4' />
+                    <path d='M20 17H4' />
+                  </svg>
                   Before SC
                 </span>
               </div>
               <div className='swap-on'>
                 <span className='badge badge-xs badge-soft badge-success'>
+                  <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='12'
+                    height='12'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='2'
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    class='lucide lucide-arrow-right-left-icon lucide-arrow-right-left'
+                  >
+                    <path d='m16 3 4 4-4 4' />
+                    <path d='M20 7H4' />
+                    <path d='m8 21-4-4 4-4' />
+                    <path d='M4 17h16' />
+                  </svg>
                   After SC
                 </span>
               </div>

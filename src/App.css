@@ -34,3 +34,13 @@ body::-webkit-scrollbar-button {
   width: 1px;
   white-space: nowrap;
 }
+
+.modal .fieldset input:not([type='checkbox']),
+.modal .fieldset select,
+.modal .fieldset .input.validator {
+  width: 100%;
+}
+
+.modal .modal-action fieldset {
+  width: 100%;
+}
