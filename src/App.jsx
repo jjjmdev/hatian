@@ -4,30 +4,46 @@ import ItemModal from './components/ItemModal'
 import PersonModal from './components/PersonModal'
 import ResetModal from './components/ResetModal'
 import ItemsTable from './components/ItemsTable'
+import { getItems, getPersons } from './data'
 
 function App() {
-	const [selectedTx, setSelectedTx] = useState(null)
+  const [persons, setPersons] = useState(getPersons())
+  const [items, setItems] = useState(getItems())
+  const [selectedTx, setSelectedTx] = useState(null)
 
-	const handleEditClick = (txId) => {
-		setSelectedTx(txId)
-	}
+  window.addEventListener('storage', () => {
+    setPersons(getPersons())
+    setItems(getItems())
+  })
 
-	const handleOpenModal = () => {
-		setSelectedTx()
-	}
+  const handleEditClick = (txId) => {
+    setSelectedTx(txId)
+  }
 
-	return (
-		<>
-			<div className='p-4 my-3 text-center w-full'>
-				<ItemModal txId={selectedTx} onOpenModal={handleOpenModal} />
-				<PersonModal />
-				<ResetModal />
-			</div>
-			<div className='w-full text-center'>
-				<ItemsTable onEditClick={handleEditClick} />
-			</div>
-		</>
-	)
+  const handleOpenModal = () => {
+    setSelectedTx()
+  }
+
+  return (
+    <>
+      <div className='p-4 my-3 text-center w-full'>
+        <ItemModal
+          persons={persons}
+          txId={selectedTx}
+          onOpenModal={handleOpenModal}
+        />
+        <PersonModal persons={persons} setPersons={setPersons} />
+        <ResetModal />
+      </div>
+      <div className='w-full text-center'>
+        <ItemsTable
+          items={items}
+          persons={persons}
+          onEditClick={handleEditClick}
+        />
+      </div>
+    </>
+  )
 }
 
 export default App

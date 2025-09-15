@@ -2,9 +2,7 @@ import { useEffect, useState } from 'react'
 import { getPersons, addItem, getItem } from '../data.js'
 import { roundTwoDecimals, priceAfterSC } from '../utils/utils'
 
-export default function ItemModal({ txId, onOpenModal }) {
-  let persons = getPersons()
-
+export default function ItemModal({ txId, onOpenModal, persons }) {
   const [payers, setPayers] = useState(
     persons.length && [
       {
@@ -120,7 +118,6 @@ export default function ItemModal({ txId, onOpenModal }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    console.log(afterSC)
     // Close the modal
     document.querySelector('#add_item').checked = false
     addItem({
@@ -373,21 +370,23 @@ const PayerRow = ({
 
 const BuyersList = ({ persons, buyers, onBuyersChange }) => {
   return (
-    <fieldset className='fieldset bg-base-100 border-base-300 rounded-box w-64 border px-3 pb-2'>
-      <legend className='fieldset-legend pb-1'>Mga Maghahati:</legend>
-      <div className='grid grid-cols-2 w-full gap-0.5 text-left'>
-        {persons.map(({ id, name }) => (
-          <label key={id}>
-            <input
-              type='checkbox'
-              checked={buyers.includes(id)}
-              className='checkbox checkbox-xs mr-1'
-              onChange={(e) => onBuyersChange(e, id)}
-            />
-            {name}
-          </label>
-        ))}
-      </div>
-    </fieldset>
+    buyers && (
+      <fieldset className='fieldset bg-base-100 border-base-300 rounded-box w-64 border px-3 pb-2'>
+        <legend className='fieldset-legend pb-1'>Mga Maghahati:</legend>
+        <div className='grid grid-cols-2 w-full gap-0.5 text-left'>
+          {persons.map(({ id, name }) => (
+            <label key={id}>
+              <input
+                type='checkbox'
+                checked={buyers.includes(id)}
+                className='checkbox checkbox-xs mr-1'
+                onChange={(e) => onBuyersChange(e, id)}
+              />
+              {name}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+    )
   )
 }
